@@ -1,0 +1,43 @@
+<div class="btn-class">
+    <mat-slide-toggle (change)="slideButton($event)">All Periodic Element</mat-slide-toggle>
+  </div>
+  <div class="container">
+    <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="mat-elevation-z8 parent-table" *ngIf="!showTasks" matSort matSortStart="desc">
+  
+      <ng-container matColumnDef="rowState">
+        <th mat-header-cell *matHeaderCellDef><mat-checkbox #checkbox="matCheckbox" [(ngModel)]="headerCheckBox" (change)="handleAllCheckboxes(checkbox)"></mat-checkbox></th>
+        <td mat-cell *matCellDef="let element;">
+          <mat-checkbox class="my-top-checkbox" [(ngModel)]="element.selected" #childCheckbox (change)="handleAllChildCheckboxes(childCheckbox, element);" (click)="$event.stopPropagation();"></mat-checkbox>
+          <mat-icon [ngStyle]="{'cursor': 'pointer'}" style="margin-left: 30px; margin-top: 2px" (click)="displayChildElements(element);" *ngIf="!showTasks">
+            {{element['rowState'] === 'collapsed' ? "chevron_right" : "expand_more"}}
+          </mat-icon>
+        </td>
+      </ng-container>
+      <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column }}</th>
+        <td mat-cell *matCellDef="let element;">
+          {{element[column]}}
+        </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="expandedDetail">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element;" [attr.colspan]="displayedColumns.length" style="padding: 0px;">
+          <app-task-table [taskData]="element['child']"></app-task-table>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: visibleColumns; let i = dataIndex;">
+      </tr>
+      <tr class="mpm-row" mat-row *matRowDef="let row; columns: ['expandedDetail']"
+          [@detailExpand]="row['rowState'] === 'expanded' ? 'expanded' : 'collapsed'">
+      </tr>
+    </table>
+    <app-task-table *ngIf="showTasks" [taskData]="dataSource"></app-task-table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 15, 100]" style="width: 85%;"></mat-paginator>
+    <div>
+      <button class="btn btn-class" (click)="getSelectedData()">Fetch data</button>
+    </div>
+  </div>
+  
+  
